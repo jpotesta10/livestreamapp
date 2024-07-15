@@ -1,0 +1,47 @@
+import subprocess
+
+# Example ffmpeg command to stream to YouTube Live (replace with your RTMP URL)
+ffmpeg_cmd = [
+    'ffmpeg',
+    '-f', 'rawvideo',
+    '-vcodec', 'rawvideo',
+    '-s', '640x480',
+    '-pix_fmt', 'bgr24',
+    '-i', '-',  # Read from stdin
+    '-c:v', 'libx264',
+    '-preset', 'fast',
+    '-b:v', '1000k',
+    '-bufsize', '1000k',
+    '-maxrate', '1000k',
+    '-g', '60',
+    '-r', '60',
+    '-f', 'flv',
+    'rtmp://your_streaming_url_here'  # Replace with your RTMP URL
+]
+
+# Open subprocess with ffmpeg command
+process = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
+
+# Read frames from OpenCV and write to ffmpeg's stdin
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        print("Error: Failed to capture frame.")
+        break
+
+    # Resize frame if necessary
+    # frame = cv2.resize(frame, (640, 480))
+
+    # Write frame to ffmpeg stdin
+    process.stdin.write(frame.tostring())
+
+    # Show the frame (optional)
+    cv2.imshow('frame', frame)
+
+    # Exit if 'q' is pressed
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release everything when done
+cap.release()
+cv2.destroyAllWindows()
